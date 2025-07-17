@@ -53,18 +53,17 @@ def load(txt_file, colname = None):
     return lex
 
 
-def __expand_lexicon__(self):
+def __expand_lexicon__(self, max_phrase_length=3,):
     vectors = []
     n_words = len(self.words)
 
     for i in range(n_words):
-        if i + 2 < n_words:
-            vectors.append(
-                f'{self.words[i]} {self.words[i+1]} {self.words[i+2]}')
-        if i + 1 < n_words:
-            vectors.append(f'{self.words[i]} {self.words[i+1]}')
-        if i < n_words:
-            vectors.append(self.words[i])
+        vectors.append(self.words[i])
+        for span in range(1,max_phrase_length):
+            if i+span > n_words:
+                continue
+            vectors.append(' '.join(self.words[i: i+span]))
+            
 
     for i in set(vectors):
         if i in self.__lexicon__:
@@ -133,27 +132,24 @@ def __build_word_affect__(self):
     self.affect_frequencies = affect_percent
 
 
-def words_and_phrases(self):
+def words_and_phrases(self, max_phrase_length=3, longest_phrases_only=True):
     words_and_phrases = []
     n_words = len(self.words)
     i = 0
 
     while i < n_words:
-        if i + 2 < n_words:
-            phrase = f'{self.words[i]} {self.words[i+1]} {self.words[i+2]}'
+        for span in range(max_phrase_length, 1, -1):
+        if i + span < n_words:
+            phrase = ' '.join(self.words[i:i+span])
 
             if phrase in self.__lexicon__:
                 words_and_phrases.append(phrase)
-                i += 3
-        if i + 1 < n_words:
-            phrase = f'{self.words[i]} {self.words[i+1]}'
+                if longest_phrases_only:
+                    i += span
+                    continue
 
-            if phrase in self.__lexicon__:
-                words_and_phrases.append(phrase)
-                i += 2
-        if i < n_words:
-            words_and_phrases.append(self.words[i])
-            i += 1
+        words_and_phrases.append(self.words[i])
+        i += 1
 
     self.words_and_phrases = words_and_phrases
 
