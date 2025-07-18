@@ -138,18 +138,15 @@ def words_and_phrases(self, max_phrase_length=3, longest_phrases_only=True):
     i = 0
 
     while i < n_words:
-        for span in range(max_phrase_length, 1, -1):
-        if i + span < n_words:
+        for span in range(min(max_phrase_length, n_words-i), 0, -1):
             phrase = ' '.join(self.words[i:i+span])
 
             if phrase in self.__lexicon__:
                 words_and_phrases.append(phrase)
                 if longest_phrases_only:
-                    i += span
-                    continue
+                    break
 
-        words_and_phrases.append(self.words[i])
-        i += 1
+        i=i+span if longest_phrases_only else i+1
 
     self.words_and_phrases = words_and_phrases
 
